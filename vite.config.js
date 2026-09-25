@@ -4,6 +4,8 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
 
+  base: "/M.I.T.R.A-MINE-INSPECTION-RESCUE-TRACKING-ASSISTANT-/",
+
   server: {
     proxy: {
       "/api": {
