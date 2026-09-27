@@ -17,9 +17,9 @@ export default function ActiveMineCard({
       <div className="mine-image-wrap">
 
         <img
-          src="/mine-background.png"
-          alt="MineGuard monitored mine"
-        />
+  src={`${import.meta.env.BASE_URL}mine-background.png`}
+  alt="M.I.T.R.A monitored mine"
+/>
 
         <div className="mine-image-overlay" />
 
