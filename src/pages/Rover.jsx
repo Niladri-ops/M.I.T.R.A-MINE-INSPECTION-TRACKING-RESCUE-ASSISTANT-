@@ -17,14 +17,15 @@ function Rover() {
   // DROIDCAM VIDEO
   // ----------------------------------------------------------
 
-  const cameraUrl = "/droidcam/video";
+  const cameraUrl =
+  "http://10.111.160.31:4747/video";
 
   // ----------------------------------------------------------
   // AUDIOSHARE
   // ----------------------------------------------------------
 
   const audioShareUrl =
-    "http://10.132.121.26:8080";
+    "http://10.111.160.31:8080";
 
   const [
     roverAudioEnabled,

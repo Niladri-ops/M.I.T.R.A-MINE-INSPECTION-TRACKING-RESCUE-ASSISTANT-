@@ -24,6 +24,54 @@ let radarState = {
 };
 
 // ============================================================
+// LIVE ROVER / HALL ODOMETRY STATE
+// ============================================================
+
+let roverState = {
+  deviceId: "MITRA-ROVER-01",
+
+  connected: false,
+
+  x: 0,
+  y: 0,
+
+  distance: 0,
+  speed: 0,
+
+  heading: 0,
+
+  leftPulses: 0,
+  rightPulses: 0,
+
+  updatedAt: null,
+};
+
+
+// ============================================================
+// DYNAMIC UNDERGROUND MINE MAP STATE
+// ============================================================
+
+const mineMapTrack = [];
+
+const mineMapHazards = [];
+
+const mineMapStreamClients =
+  new Set();
+
+
+// Keep enough history for a long prototype run,
+// but prevent unlimited RAM usage.
+
+const MAX_TRACK_POINTS = 5000;
+
+const MAX_HAZARD_POINTS = 1000;
+
+
+// Ignore tiny coordinate jitter.
+
+const TRACK_MIN_DISTANCE_M = 0.015;
+
+// ============================================================
 // LIVE MPU6050 / IMU STATE
 // ============================================================
 
@@ -93,7 +141,9 @@ function broadcastImuState() {
 
   const payload =
     `event: imu\n` +
-    `data: ${JSON.stringify(getPublicImuState())}\n\n`;
+    `data: ${JSON.stringify(
+      getPublicImuState()
+    )}\n\n`;
 
   for (const client of imuStreamClients) {
     try {
@@ -102,6 +152,184 @@ function broadcastImuState() {
       imuStreamClients.delete(client);
     }
   }
+}
+
+
+// ============================================================
+// ROVER / MINE MAP HELPERS
+// ============================================================
+
+function getPublicRoverState() {
+  const fresh =
+    roverState.updatedAt &&
+    Date.now() -
+      new Date(
+        roverState.updatedAt
+      ).getTime()
+      <= 3000;
+
+  return {
+    ...roverState,
+
+    connected: Boolean(
+      roverState.connected &&
+      fresh
+    ),
+
+    fresh: Boolean(fresh),
+  };
+}
+
+
+function getMineMapSnapshot() {
+  return {
+    rover:
+      getPublicRoverState(),
+
+    track:
+      mineMapTrack,
+
+    hazards:
+      mineMapHazards,
+
+    updatedAt:
+      new Date().toISOString(),
+  };
+}
+
+
+function broadcastMineMapEvent(
+  eventName,
+  data
+) {
+  if (
+    mineMapStreamClients.size ===
+    0
+  ) {
+    return;
+  }
+
+  const payload =
+    `event: ${eventName}\n` +
+    `data: ${JSON.stringify(
+      data
+    )}\n\n`;
+
+  for (
+    const client
+    of mineMapStreamClients
+  ) {
+    try {
+      client.write(
+        payload
+      );
+    } catch (_error) {
+      mineMapStreamClients.delete(
+        client
+      );
+    }
+  }
+}
+
+
+function addTrackPoint(
+  rover
+) {
+  const point = {
+    x:
+      Number(rover.x),
+
+    y:
+      Number(rover.y),
+
+    heading:
+      Number(rover.heading),
+
+    speed:
+      Number(rover.speed),
+
+    distance:
+      Number(rover.distance),
+
+    leftPulses:
+      Number(
+        rover.leftPulses
+      ),
+
+    rightPulses:
+      Number(
+        rover.rightPulses
+      ),
+
+    timestamp:
+      rover.updatedAt,
+  };
+
+
+  if (
+    mineMapTrack.length ===
+    0
+  ) {
+    mineMapTrack.push(
+      point
+    );
+
+    broadcastMineMapEvent(
+      "track-point",
+      point
+    );
+
+    return;
+  }
+
+
+  const previous =
+    mineMapTrack[
+      mineMapTrack.length - 1
+    ];
+
+
+  const dx =
+    point.x -
+    previous.x;
+
+  const dy =
+    point.y -
+    previous.y;
+
+
+  const movement =
+    Math.hypot(
+      dx,
+      dy
+    );
+
+
+  if (
+    movement <
+    TRACK_MIN_DISTANCE_M
+  ) {
+    return;
+  }
+
+
+  mineMapTrack.push(
+    point
+  );
+
+
+  if (
+    mineMapTrack.length >
+    MAX_TRACK_POINTS
+  ) {
+    mineMapTrack.shift();
+  }
+
+
+  broadcastMineMapEvent(
+    "track-point",
+    point
+  );
 }
 
 // ============================================================
@@ -242,6 +470,367 @@ app.post(
   }
 );
 
+// ============================================================
+// ROVER / HALL ODOMETRY INGESTION
+// ============================================================
+
+app.post(
+  "/api/rover-data",
+  (req, res) => {
+    try {
+      const {
+        device_id,
+
+        connected = true,
+
+        x,
+        y,
+
+        distance,
+        speed,
+
+        heading,
+
+        leftPulses,
+        rightPulses,
+      } = req.body;
+
+
+      if (!device_id) {
+        return res
+          .status(400)
+          .json({
+            error:
+              "device_id is required",
+          });
+      }
+
+
+      const numericFields = {
+        x,
+        y,
+        distance,
+        speed,
+        heading,
+        leftPulses,
+        rightPulses,
+      };
+
+
+      for (
+        const [
+          name,
+          value,
+        ]
+        of Object.entries(
+          numericFields
+        )
+      ) {
+        if (
+          !Number.isFinite(
+            Number(value)
+          )
+        ) {
+          return res
+            .status(400)
+            .json({
+              error:
+                `${name} must be a finite number`,
+            });
+        }
+      }
+
+
+      roverState = {
+        deviceId:
+          String(
+            device_id
+          ),
+
+        connected:
+          Boolean(
+            connected
+          ),
+
+        x:
+          Number(x),
+
+        y:
+          Number(y),
+
+        distance:
+          Math.max(
+            0,
+            Number(distance)
+          ),
+
+        speed:
+          Math.max(
+            0,
+            Number(speed)
+          ),
+
+        heading:
+          Number(heading),
+
+        leftPulses:
+          Math.max(
+            0,
+            Number(
+              leftPulses
+            )
+          ),
+
+        rightPulses:
+          Math.max(
+            0,
+            Number(
+              rightPulses
+            )
+          ),
+
+        updatedAt:
+          new Date()
+            .toISOString(),
+      };
+
+
+      // Add a new point only when X/Y
+      // actually changed.
+
+      addTrackPoint(
+        roverState
+      );
+
+
+      // Send current rover state immediately
+      // to Mine Map SSE clients.
+
+      broadcastMineMapEvent(
+        "rover",
+        getPublicRoverState()
+      );
+
+
+      res
+        .status(200)
+        .json({
+          status:
+            "success",
+
+          message:
+            "Rover odometry received",
+
+          rover:
+            getPublicRoverState(),
+        });
+    } catch (error) {
+      console.error(
+        "Rover data error:",
+        error
+      );
+
+      res
+        .status(500)
+        .json({
+          error:
+            "Failed to process rover odometry",
+        });
+    }
+  }
+);
+
+// ============================================================
+// ROVER SNAPSHOT
+// ============================================================
+
+app.get(
+  "/api/rover",
+  (_req, res) => {
+    res.json({
+      rover:
+        getPublicRoverState(),
+
+      updatedAt:
+        new Date()
+          .toISOString(),
+    });
+  }
+);
+// ============================================================
+// DYNAMIC MINE MAP SNAPSHOT
+// ============================================================
+
+app.get(
+  "/api/mine-map",
+  (_req, res) => {
+    res.json(
+      getMineMapSnapshot()
+    );
+  }
+);
+
+// ============================================================
+// LIVE MINE MAP SSE STREAM
+// ============================================================
+
+app.get(
+  "/api/mine-map-stream",
+  (req, res) => {
+    res.setHeader(
+      "Content-Type",
+      "text/event-stream"
+    );
+
+    res.setHeader(
+      "Cache-Control",
+      "no-cache, no-transform"
+    );
+
+    res.setHeader(
+      "Connection",
+      "keep-alive"
+    );
+
+    res.setHeader(
+      "X-Accel-Buffering",
+      "no"
+    );
+
+
+    res.flushHeaders?.();
+
+
+    // Tell browser to reconnect
+    // automatically after 1 second.
+
+    res.write(
+      "retry: 1000\n\n"
+    );
+
+
+    // Send complete map immediately
+    // when frontend connects.
+
+    res.write(
+      `event: snapshot\n` +
+      `data: ${JSON.stringify(
+        getMineMapSnapshot()
+      )}\n\n`
+    );
+
+
+    mineMapStreamClients.add(
+      res
+    );
+
+
+    const heartbeat =
+      setInterval(
+        () => {
+          try {
+            res.write(
+              `event: heartbeat\n` +
+              `data: ${JSON.stringify({
+                timestamp:
+                  new Date()
+                    .toISOString(),
+              })}\n\n`
+            );
+          } catch (_error) {
+            clearInterval(
+              heartbeat
+            );
+
+            mineMapStreamClients.delete(
+              res
+            );
+          }
+        },
+        5000
+      );
+
+
+    req.on(
+      "close",
+      () => {
+        clearInterval(
+          heartbeat
+        );
+
+        mineMapStreamClients.delete(
+          res
+        );
+      }
+    );
+  }
+);
+
+// ============================================================
+// RESET DYNAMIC MINE MAP
+// ============================================================
+
+app.post(
+  "/api/mine-map/reset",
+  (_req, res) => {
+    mineMapTrack.length =
+      0;
+
+    mineMapHazards.length =
+      0;
+
+
+    roverState = {
+      deviceId:
+        "MITRA-ROVER-01",
+
+      connected:
+        false,
+
+      x:
+        0,
+
+      y:
+        0,
+
+      distance:
+        0,
+
+      speed:
+        0,
+
+      heading:
+        0,
+
+      leftPulses:
+        0,
+
+      rightPulses:
+        0,
+
+      updatedAt:
+        null,
+    };
+
+
+    broadcastMineMapEvent(
+      "reset",
+      getMineMapSnapshot()
+    );
+
+
+    res.json({
+      status:
+        "success",
+
+      message:
+        "Mine map cleared",
+
+      map:
+        getMineMapSnapshot(),
+    });
+  }
+);
 // ============================================================
 // IMU INGESTION
 // ============================================================
@@ -1304,6 +1893,9 @@ app.get(
         imu:
           getPublicImuState(),
 
+        rover:
+        getPublicRoverState(),
+
         updatedAt:
           new Date()
             .toISOString(),
@@ -1680,6 +2272,22 @@ app.listen(
 
     console.log(
       `IMU live stream: http://0.0.0.0:${PORT}/api/imu-stream`
+    );
+
+    console.log(
+      `Rover ingest: http://0.0.0.0:${PORT}/api/rover-data`
+    );
+
+    console.log(
+      `Rover snapshot: http://0.0.0.0:${PORT}/api/rover`
+    );
+
+    console.log(
+      `Mine map snapshot: http://0.0.0.0:${PORT}/api/mine-map`
+    );
+
+    console.log(
+      `Mine map stream: http://0.0.0.0:${PORT}/api/mine-map-stream`
     );
   }
 );

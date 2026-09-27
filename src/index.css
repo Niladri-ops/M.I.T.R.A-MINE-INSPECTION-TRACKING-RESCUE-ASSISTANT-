@@ -7484,3 +7484,2925 @@ div.pending {
   }
 
 }
+/* ============================================================
+   M.I.T.R.A.
+   DYNAMIC UNDERGROUND MINE MAP
+   ============================================================ */
+
+
+/* ============================================================
+   MAP PAGE
+   ============================================================ */
+
+.mine-map-page {
+  width: 100%;
+  min-height: 100%;
+}
+
+.mine-map-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 24px;
+}
+
+.mine-map-header h1 {
+  margin: 4px 0 8px;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.mine-map-header > div:first-child > p:last-child {
+  max-width: 720px;
+  margin: 0;
+  color: #64748b;
+  line-height: 1.65;
+}
+
+.mine-map-header-statuses {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.mine-map-connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 12px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.92);
+
+  color: #64748b;
+
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 5px 16px rgba(15, 23, 42, 0.04);
+}
+
+.mine-map-connection > span {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.mine-map-connection.online {
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.25);
+  background: #ecfdf5;
+}
+
+.mine-map-connection.online > span {
+  background: #10b981;
+
+  box-shadow:
+    0 0 0 4px rgba(16, 185, 129, 0.12),
+    0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.mine-map-connection.offline {
+  color: #b45309;
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.mine-map-connection.offline > span {
+  background: #f59e0b;
+}
+
+
+/* ============================================================
+   MAP + RIGHT TELEMETRY LAYOUT
+   ============================================================ */
+
+.mine-map-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(250px, 310px);
+
+  align-items: start;
+  gap: 20px;
+}
+
+.mine-map-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mine-map-side {
+  display: grid;
+  gap: 16px;
+}
+
+
+/* ============================================================
+   MAP PANEL HEADER
+   ============================================================ */
+
+.mine-map-panel .panel-heading {
+  margin-bottom: 16px;
+}
+
+.mine-map-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 11px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+
+  background: #ecfdf5;
+
+  color: #047857;
+
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.mine-map-live > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+
+  background: #10b981;
+
+  box-shadow:
+    0 0 0 4px rgba(16, 185, 129, 0.12),
+    0 0 10px rgba(16, 185, 129, 0.45);
+
+  animation:
+    mitraMapLivePulse 1.8s ease-in-out infinite;
+}
+
+@keyframes mitraMapLivePulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.55;
+    transform: scale(0.8);
+  }
+}
+
+
+/* ============================================================
+   DYNAMIC MAP CANVAS
+   ============================================================ */
+
+.live-mine-map-canvas {
+  position: relative;
+
+  width: 100%;
+  height: clamp(480px, 58vh, 650px);
+
+  overflow: hidden;
+
+  border: 1px solid #dbe4ee;
+  border-radius: 20px;
+
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(14, 165, 233, 0.055),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      #fbfdff 0%,
+      #f5f9fc 100%
+    );
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8),
+    inset 0 -35px 80px rgba(15, 23, 42, 0.025),
+    0 10px 32px rgba(15, 23, 42, 0.07);
+}
+
+
+/* ============================================================
+   ENGINEERING GRID
+   ============================================================ */
+
+.live-mine-map-canvas .mine-grid {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(
+      rgba(100, 116, 139, 0.075) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(100, 116, 139, 0.075) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      rgba(100, 116, 139, 0.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(100, 116, 139, 0.035) 1px,
+      transparent 1px
+    );
+
+  background-size:
+    50px 50px,
+    50px 50px,
+    10px 10px,
+    10px 10px;
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.85),
+      rgba(0, 0, 0, 0.55)
+    );
+
+  z-index: 0;
+}
+
+
+/* ============================================================
+   SVG MAP
+   ============================================================ */
+
+.live-mine-map-svg {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  z-index: 2;
+
+  overflow: visible;
+}
+
+.live-mine-map-svg polyline {
+  vector-effect: non-scaling-stroke;
+}
+
+.live-mine-map-svg line,
+.live-mine-map-svg circle,
+.live-mine-map-svg polygon {
+  vector-effect: non-scaling-stroke;
+}
+
+
+/* ============================================================
+   MAP INFORMATION CHIPS
+   ============================================================ */
+
+.live-map-overlay-chip {
+  position: absolute;
+  z-index: 8;
+
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 30px;
+
+  padding: 0 10px;
+
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  border-radius: 8px;
+
+  background:
+    rgba(255, 255, 255, 0.88);
+
+  backdrop-filter: blur(10px);
+
+  color: #475569;
+
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+
+  box-shadow:
+    0 4px 15px rgba(15, 23, 42, 0.06);
+}
+
+.live-map-overlay-chip.top-left {
+  top: 16px;
+  left: 16px;
+}
+
+.live-map-overlay-chip.top-right {
+  top: 16px;
+  right: 16px;
+}
+
+.live-map-overlay-chip.bottom-left {
+  left: 16px;
+  bottom: 16px;
+}
+
+.live-map-overlay-chip.bottom-right {
+  right: 16px;
+  bottom: 16px;
+}
+
+
+/* ============================================================
+   LIVE MAP INFORMATION PANEL
+   ============================================================ */
+
+.live-map-info-panel {
+  position: absolute;
+
+  top: 58px;
+  left: 16px;
+
+  z-index: 7;
+
+  display: grid;
+  gap: 7px;
+
+  width: min(205px, 35%);
+
+  padding: 10px;
+
+  border: 1px solid rgba(203, 213, 225, 0.75);
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.84);
+
+  backdrop-filter: blur(12px);
+
+  box-shadow:
+    0 7px 25px rgba(15, 23, 42, 0.06);
+}
+
+.live-map-info-panel > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 5px 6px;
+}
+
+.live-map-info-panel span {
+  color: #94a3b8;
+
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.065em;
+}
+
+.live-map-info-panel strong {
+  color: #334155;
+
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  text-align: right;
+}
+
+
+/* ============================================================
+   ROVER OFFLINE OVERLAY
+   ============================================================ */
+
+.live-mine-map-canvas .map-offline-overlay {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  z-index: 20;
+
+  width: min(390px, calc(100% - 48px));
+
+  transform:
+    translate(-50%, -50%);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 25px 28px;
+
+  border:
+    1px solid rgba(203, 213, 225, 0.85);
+
+  border-radius: 16px;
+
+  background:
+    rgba(255, 255, 255, 0.94);
+
+  backdrop-filter:
+    blur(12px);
+
+  text-align: center;
+
+  box-shadow:
+    0 15px 50px rgba(15, 23, 42, 0.12);
+}
+
+.live-mine-map-canvas .map-offline-overlay svg {
+  margin-bottom: 11px;
+
+  color: #64748b;
+}
+
+.live-mine-map-canvas .map-offline-overlay strong {
+  margin-bottom: 6px;
+
+  color: #1e293b;
+
+  font-size: 0.92rem;
+}
+
+.live-mine-map-canvas .map-offline-overlay span {
+  color: #64748b;
+
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+
+/* ============================================================
+   MAP LEGEND
+   ============================================================ */
+
+.mine-map-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 10px 22px;
+
+  margin-top: 14px;
+
+  padding:
+    13px 15px;
+
+  border:
+    1px solid #e2e8f0;
+
+  border-radius: 13px;
+
+  background:
+    #f8fafc;
+}
+
+.mine-map-legend > div {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.legend-rover,
+.legend-tunnel,
+.legend-zone {
+  display: inline-block;
+
+  width: 11px;
+  height: 11px;
+
+  border-radius: 50%;
+}
+
+.legend-tunnel {
+  width: 22px;
+  height: 4px;
+
+  border-radius: 999px;
+}
+
+.legend-zone {
+  box-shadow:
+    0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+
+/* ============================================================
+   RIGHT SIDE POSITION PANEL
+   ============================================================ */
+
+.position-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 10px;
+}
+
+.position-value-card {
+  position: relative;
+
+  overflow: hidden;
+
+  min-width: 0;
+
+  padding: 14px;
+
+  border:
+    1px solid #e2e8f0;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #f8fafc
+    );
+}
+
+.position-value-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #0ea5e9,
+      #22d3ee
+    );
+}
+
+.position-value-card.wide {
+  grid-column:
+    1 / -1;
+}
+
+.position-value-card span {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #94a3b8;
+
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+}
+
+.position-value-card strong {
+  display: flex;
+  align-items: baseline;
+
+  gap: 4px;
+
+  color: #0f172a;
+
+  font-size: 1.45rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.position-value-card strong small {
+  color: #94a3b8;
+
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+
+/* ============================================================
+   MOTION PANEL
+   ============================================================ */
+
+.motion-list {
+  display: grid;
+  gap: 6px;
+}
+
+.motion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  min-height: 43px;
+
+  padding:
+    9px 10px;
+
+  border-bottom:
+    1px solid #edf2f7;
+}
+
+.motion-row:last-child {
+  border-bottom: none;
+}
+
+.motion-row > span {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: #64748b;
+
+  font-size: 0.77rem;
+}
+
+.motion-row > span svg {
+  color: #0ea5e9;
+}
+
+.motion-row strong {
+  color: #1e293b;
+
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.motion-row strong small {
+  color: #94a3b8;
+
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   TELEMETRY / HAZARD CARDS
+   ============================================================ */
+
+.telemetry-status {
+  display: grid;
+  gap: 8px;
+}
+
+.telemetry-indicator {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding:
+    10px;
+
+  border:
+    1px solid #e2e8f0;
+
+  border-radius:
+    10px;
+
+  background:
+    #f8fafc;
+
+  color:
+    #64748b;
+
+  font-size:
+    0.69rem;
+
+  font-weight:
+    850;
+
+  letter-spacing:
+    0.045em;
+}
+
+.telemetry-indicator > span {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background:
+    #94a3b8;
+}
+
+.telemetry-indicator.online {
+  border-color:
+    rgba(16, 185, 129, 0.23);
+
+  background:
+    #ecfdf5;
+
+  color:
+    #047857;
+}
+
+.telemetry-indicator.online > span {
+  background:
+    #10b981;
+
+  box-shadow:
+    0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.telemetry-indicator.offline {
+  background:
+    #fff7ed;
+
+  border-color:
+    #fed7aa;
+
+  color:
+    #c2410c;
+}
+
+.telemetry-indicator.offline > span {
+  background:
+    #f97316;
+}
+
+.telemetry-detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  min-height:
+    36px;
+
+  padding:
+    7px 8px;
+
+  border-bottom:
+    1px solid #f1f5f9;
+}
+
+.telemetry-detail:last-of-type {
+  border-bottom:
+    none;
+}
+
+.telemetry-detail span {
+  color:
+    #64748b;
+
+  font-size:
+    0.74rem;
+}
+
+.telemetry-detail strong {
+  color:
+    #1e293b;
+
+  font-size:
+    0.78rem;
+
+  font-weight:
+    800;
+}
+
+.telemetry-updated {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    6px;
+
+  margin-top:
+    5px;
+
+  padding-top:
+    10px;
+
+  border-top:
+    1px solid #e2e8f0;
+
+  color:
+    #94a3b8;
+
+  font-size:
+    0.68rem;
+}
+
+.telemetry-error {
+  padding:
+    9px 10px;
+
+  border:
+    1px solid #fecaca;
+
+  border-radius:
+    9px;
+
+  background:
+    #fef2f2;
+
+  color:
+    #b91c1c;
+
+  font-size:
+    0.69rem;
+}
+
+
+/* ============================================================
+   HAZARD PANEL VISUAL ACCENTS
+   ============================================================ */
+
+.mine-map-side
+  .rover-status-panel:last-child
+  .telemetry-detail:nth-child(1)
+  strong {
+  color:
+    #dc2626;
+}
+
+.mine-map-side
+  .rover-status-panel:last-child
+  .telemetry-detail:nth-child(2)
+  strong {
+  color:
+    #d97706;
+}
+
+.mine-map-side
+  .rover-status-panel:last-child
+  .telemetry-detail:nth-child(3)
+  strong {
+  color:
+    #059669;
+}
+
+
+/* ============================================================
+   NAVIGATION ENGINE — NOW ACTIVE
+   ============================================================ */
+
+.navigation-engine-panel {
+  margin-top:
+    18px;
+}
+
+.navigation-engine-panel
+.navigation-engine-flow
+.pending {
+  opacity:
+    1;
+
+  border-color:
+    rgba(14, 165, 233, 0.25);
+
+  background:
+    #f0f9ff;
+
+  color:
+    #0369a1;
+}
+
+
+/* ============================================================
+   MAP SVG MICRO ANIMATIONS
+   ============================================================ */
+
+.live-mine-map-svg circle:last-of-type {
+  transition:
+    cx 0.18s linear,
+    cy 0.18s linear;
+}
+
+.live-mine-map-svg polyline {
+  transition:
+    opacity 0.2s ease;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1180px) {
+
+  .mine-map-layout {
+    grid-template-columns:
+      minmax(0, 1fr)
+      265px;
+  }
+
+  .live-mine-map-canvas {
+    height:
+      540px;
+  }
+
+}
+
+
+@media (max-width: 980px) {
+
+  .mine-map-header {
+    flex-direction:
+      column;
+  }
+
+  .mine-map-header-statuses {
+    justify-content:
+      flex-start;
+  }
+
+  .mine-map-layout {
+    grid-template-columns:
+      1fr;
+  }
+
+  .mine-map-side {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+}
+
+
+@media (max-width: 680px) {
+
+  .mine-map-header-statuses {
+    width:
+      100%;
+  }
+
+  .mine-map-connection {
+    flex:
+      1 1 auto;
+
+    justify-content:
+      center;
+  }
+
+  .live-mine-map-canvas {
+    height:
+      440px;
+
+    border-radius:
+      14px;
+  }
+
+  .live-map-info-panel {
+    display:
+      none;
+  }
+
+  .live-map-overlay-chip {
+    font-size:
+      0.58rem;
+
+    padding:
+      0 7px;
+  }
+
+  .mine-map-side {
+    grid-template-columns:
+      1fr;
+  }
+
+  .position-grid {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+}
+
+
+@media (max-width: 460px) {
+
+  .position-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .position-value-card.wide {
+    grid-column:
+      auto;
+  }
+
+  .live-map-overlay-chip.top-right {
+    display:
+      none;
+  }
+
+  .live-map-overlay-chip.bottom-right {
+    display:
+      none;
+  }
+
+}
+/* ============================================================
+   M.I.T.R.A. — VPYTHON ATTITUDE GEOMETRY CORRECTION
+
+   VPython reference coordinate frame:
+
+   X       = red horizontal/diagonal axis
+   Y       = green horizontal/diagonal axis
+   Z / UP  = blue vertical axis
+
+   YAW     = horizontal X-Y navigation plane
+   PITCH   = vertical plane
+   ROLL    = vertical plane
+   ============================================================ */
+
+
+/* ============================================================
+   VIEWPORT
+   ============================================================ */
+
+.vpython-attitude-viewport {
+  position: relative;
+
+  min-height: 540px;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(0, 35, 48, 0.22),
+      transparent 34%
+    ),
+    #020609;
+
+  perspective: 1100px;
+
+  transform-style: preserve-3d;
+}
+
+
+/* ============================================================
+   WORLD
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-world {
+  position: absolute;
+
+  inset: 0;
+
+  transform-style: preserve-3d;
+
+  perspective: 1100px;
+}
+
+
+/* ============================================================
+   YAW / HEADING PLANE
+   THIS MUST BE HORIZONTAL
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-yaw-plane {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 55% !important;
+
+  width: 470px !important;
+  height: 310px !important;
+
+  border-radius: 50% !important;
+
+  transform:
+    translate(-50%, -50%)
+    rotateX(68deg) !important;
+
+  transform-origin: center center !important;
+
+  background:
+    rgba(10, 185, 90, 0.10) !important;
+
+  border:
+    1px solid
+    rgba(35, 225, 125, 0.18) !important;
+
+  box-shadow:
+    inset 0 0 45px
+    rgba(0, 205, 125, 0.08) !important;
+
+  z-index: 2 !important;
+
+  pointer-events: none;
+}
+
+
+/* Remove any old transform from the inner fill */
+
+.vpython-attitude-viewport .vpy-yaw-plane-fill {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 50%;
+
+  transform: none !important;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(0, 255, 130, 0.10),
+      rgba(0, 90, 55, 0.03) 70%
+    );
+}
+
+
+/* ============================================================
+   YAW LABEL
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-yaw-plane-label {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 50% !important;
+
+  transform:
+    translate(-50%, 108px)
+    rotateX(-68deg) !important;
+
+  padding: 4px 9px;
+
+  background:
+    rgba(0, 14, 18, 0.90);
+
+  color:
+    #28f48b;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  letter-spacing: 0.02em;
+}
+
+
+/* ============================================================
+   PITCH PLANE
+   VPYTHON = VERTICAL BLUE PLANE
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-pitch-plane {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 51% !important;
+
+  width: 410px !important;
+  height: 335px !important;
+
+  transform:
+    translate(-50%, -50%)
+    rotateY(0deg) !important;
+
+  transform-origin:
+    center center !important;
+
+  background:
+    rgba(25, 95, 225, 0.055) !important;
+
+  border:
+    1px solid
+    rgba(65, 140, 255, 0.08) !important;
+
+  z-index: 1 !important;
+
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   PITCH LABEL
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-pitch-plane-label {
+  position: absolute !important;
+
+  right: 20px !important;
+  top: 22px !important;
+
+  padding:
+    4px 8px;
+
+  background:
+    rgba(0, 10, 18, 0.92);
+
+  color:
+    #438eff;
+
+  font-size:
+    12px;
+
+  font-weight:
+    800;
+
+  white-space:
+    nowrap;
+}
+
+
+/* ============================================================
+   ROLL PLANE
+   VPYTHON = SECOND VERTICAL PLANE,
+   PERPENDICULAR TO PITCH
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-roll-plane {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 51% !important;
+
+  width: 410px !important;
+  height: 335px !important;
+
+  transform:
+    translate(-50%, -50%)
+    rotateY(72deg) !important;
+
+  transform-origin:
+    center center !important;
+
+  background:
+    rgba(230, 45, 55, 0.045) !important;
+
+  border:
+    1px solid
+    rgba(255, 70, 75, 0.065) !important;
+
+  z-index: 1 !important;
+
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   ROLL LABEL
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-roll-plane-label {
+  position: absolute !important;
+
+  left: 25px !important;
+  top: 22px !important;
+
+  padding:
+    4px 8px;
+
+  background:
+    rgba(15, 5, 7, 0.92);
+
+  color:
+    #ff464d;
+
+  font-size:
+    12px;
+
+  font-weight:
+    800;
+
+  white-space:
+    nowrap;
+}
+
+
+/* ============================================================
+   COMPASS RING
+
+   VPython compass ring also lies on horizontal plane.
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-compass-ring {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 55% !important;
+
+  width: 550px !important;
+  height: 360px !important;
+
+  transform:
+    translate(-50%, -50%)
+    rotateX(68deg) !important;
+
+  transform-origin:
+    center center !important;
+
+  border:
+    3px solid
+    rgba(115, 145, 175, 0.66) !important;
+
+  border-radius:
+    50% !important;
+
+  background:
+    transparent !important;
+
+  box-shadow:
+    0 0 14px
+    rgba(80, 130, 175, 0.14) !important;
+
+  z-index:
+    3 !important;
+}
+
+
+/* ============================================================
+   COMPASS LABELS
+
+   Counter-rotate labels so text remains readable.
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-compass-label {
+  position:
+    absolute !important;
+
+  color:
+    #bac7d4;
+
+  font-size:
+    12px;
+
+  font-weight:
+    800;
+
+  white-space:
+    nowrap;
+
+  transform:
+    rotateX(-68deg) !important;
+}
+
+
+.vpython-attitude-viewport
+.vpy-compass-label.vpy-zero {
+  left:
+    50% !important;
+
+  top:
+    -26px !important;
+
+  transform:
+    translateX(-50%)
+    rotateX(-68deg) !important;
+}
+
+
+.vpython-attitude-viewport
+.vpy-compass-label.vpy-90 {
+  right:
+    -28px !important;
+
+  top:
+    50% !important;
+
+  transform:
+    translateY(-50%)
+    rotateX(-68deg) !important;
+}
+
+
+.vpython-attitude-viewport
+.vpy-compass-label.vpy-180 {
+  left:
+    50% !important;
+
+  bottom:
+    -26px !important;
+
+  transform:
+    translateX(-50%)
+    rotateX(-68deg) !important;
+}
+
+
+.vpython-attitude-viewport
+.vpy-compass-label.vpy-270 {
+  left:
+    -32px !important;
+
+  top:
+    50% !important;
+
+  transform:
+    translateY(-50%)
+    rotateX(-68deg) !important;
+}
+
+
+/* ============================================================
+   ORANGE HEADING RING
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-heading-ring {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    55% !important;
+
+  width:
+    430px !important;
+
+  height:
+    282px !important;
+
+  border:
+    3px solid
+    #f58210 !important;
+
+  border-radius:
+    50% !important;
+
+  transform-style:
+    preserve-3d;
+
+  transform-origin:
+    center center !important;
+
+  z-index:
+    6 !important;
+
+  box-shadow:
+    0 0 9px
+    rgba(245, 130, 16, 0.24);
+}
+
+
+/* ============================================================
+   ROVER BODY
+
+   Sit the vehicle ABOVE the horizontal yaw plane.
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-rover-orientation {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    53% !important;
+
+  z-index:
+    10 !important;
+
+  transform-style:
+    preserve-3d;
+}
+
+
+/* ============================================================
+   Z AXIS — TRUE VERTICAL
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-axis-z {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    18% !important;
+
+  width:
+    4px !important;
+
+  height:
+    230px !important;
+
+  transform:
+    translateX(-50%) !important;
+
+  z-index:
+    15 !important;
+}
+
+
+.vpython-attitude-viewport .vpy-z-line {
+  position:
+    absolute;
+
+  left:
+    50%;
+
+  bottom:
+    0;
+
+  width:
+    4px;
+
+  height:
+    100%;
+
+  transform:
+    translateX(-50%);
+
+  background:
+    #154cff;
+
+  box-shadow:
+    0 0 8px
+    rgba(25, 75, 255, 0.35);
+}
+
+
+.vpython-attitude-viewport .vpy-z-arrow {
+  position:
+    absolute;
+
+  left:
+    50%;
+
+  top:
+    -13px;
+
+  transform:
+    translateX(-50%);
+
+  width:
+    0;
+
+  height:
+    0;
+
+  border-left:
+    8px solid transparent;
+
+  border-right:
+    8px solid transparent;
+
+  border-bottom:
+    17px solid #154cff;
+}
+
+
+.vpython-attitude-viewport
+.vpy-axis-z > span {
+  position:
+    absolute;
+
+  top:
+    -42px;
+
+  left:
+    50%;
+
+  transform:
+    translateX(-50%);
+
+  color:
+    #2454ff;
+
+  font-size:
+    14px;
+
+  font-weight:
+    850;
+
+  white-space:
+    nowrap;
+}
+
+
+/* ============================================================
+   X AXIS — RED
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-axis-x {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    55% !important;
+
+  width:
+    320px !important;
+
+  height:
+    4px !important;
+
+  transform:
+    translate(0, 0)
+    rotate(17deg) !important;
+
+  transform-origin:
+    left center !important;
+
+  z-index:
+    8 !important;
+}
+
+
+/* ============================================================
+   Y AXIS — GREEN
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-axis-y {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    55% !important;
+
+  width:
+    310px !important;
+
+  height:
+    4px !important;
+
+  transform:
+    translate(-100%, 0)
+    rotate(-25deg) !important;
+
+  transform-origin:
+    right center !important;
+
+  z-index:
+    8 !important;
+}
+
+
+/* ============================================================
+   KEEP LIVE HUD ABOVE THE 3D WORLD
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-live-values {
+  z-index:
+    50 !important;
+}
+
+
+.vpython-attitude-viewport
+.vpy-sensor-indicator {
+  z-index:
+    50 !important;
+}
+/* ============================================================
+   FIX — CENTER M.I.T.R.A. 3D ATTITUDE SCENE
+   ============================================================ */
+
+.vpython-attitude-viewport {
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 540px !important;
+}
+
+
+/* Center the complete 3D world */
+.vpython-attitude-viewport .vpy-world {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 50% !important;
+
+  width: 760px !important;
+  height: 520px !important;
+
+  transform:
+    translate(-50%, -50%) !important;
+
+  transform-origin:
+    center center !important;
+
+  transform-style:
+    preserve-3d !important;
+
+  overflow:
+    visible !important;
+}
+
+
+/* ============================================================
+   CENTER YAW PLANE
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-yaw-plane {
+  left: 50% !important;
+  top: 58% !important;
+
+  transform:
+    translate(-50%, -50%)
+    rotateX(68deg) !important;
+}
+
+
+/* ============================================================
+   CENTER COMPASS RING
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-compass-ring {
+  left: 50% !important;
+  top: 58% !important;
+
+  transform:
+    translate(-50%, -50%)
+    rotateX(68deg) !important;
+}
+
+
+/* ============================================================
+   CENTER HEADING RING
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-heading-ring {
+  left: 50% !important;
+  top: 58% !important;
+}
+
+
+/* ============================================================
+   CENTER ROVER BODY
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-rover-orientation {
+  left: 50% !important;
+  top: 55% !important;
+}
+
+
+/* ============================================================
+   CENTER VERTICAL PLANES
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-pitch-plane {
+  left: 50% !important;
+  top: 52% !important;
+}
+
+
+.vpython-attitude-viewport .vpy-roll-plane {
+  left: 50% !important;
+  top: 52% !important;
+}
+
+
+/* ============================================================
+   CENTER Z AXIS
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-axis-z {
+  left: 50% !important;
+  top: 15% !important;
+}
+
+
+/* ============================================================
+   X AXIS
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-axis-x {
+  left: 50% !important;
+  top: 58% !important;
+}
+
+
+/* ============================================================
+   Y AXIS
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-axis-y {
+  left: 50% !important;
+  top: 58% !important;
+}
+
+
+/* ============================================================
+   KEEP HUD INSIDE PANEL
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-live-values {
+  position: absolute !important;
+
+  left: 18px !important;
+  bottom: 18px !important;
+
+  z-index: 100 !important;
+}
+
+
+.vpython-attitude-viewport .vpy-sensor-indicator {
+  position: absolute !important;
+
+  right: 18px !important;
+  bottom: 18px !important;
+
+  z-index: 100 !important;
+}
+/* ============================================================
+   MITRA ATTITUDE VISUALIZER — GEOMETRY FIX
+   ============================================================ */
+
+.vpython-attitude-viewport {
+  position: relative;
+  min-height: 540px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(0, 30, 44, 0.22), transparent 40%),
+    #02070b;
+  perspective: 1100px;
+  transform-style: preserve-3d;
+}
+
+.vpython-attitude-viewport .vpy-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 120, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 120, 255, 0.08) 1px, transparent 1px);
+  background-size: 38px 38px;
+  opacity: 0.45;
+}
+
+.vpython-attitude-viewport .vpy-world {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 760px;
+  height: 500px;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+  overflow: visible;
+}
+
+/* =========================
+   YAW PLANE — HORIZONTAL
+   ========================= */
+
+.vpython-attitude-viewport .vpy-yaw-plane {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 460px;
+  height: 300px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotateX(72deg);
+  transform-style: preserve-3d;
+  z-index: 2;
+}
+
+.vpython-attitude-viewport .vpy-yaw-plane-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 180, 90, 0.12);
+  border: 1px solid rgba(60, 255, 160, 0.12);
+  box-shadow: inset 0 0 34px rgba(0, 210, 120, 0.1);
+}
+
+.vpython-attitude-viewport .vpy-yaw-plane-label {
+  position: absolute;
+  left: 50%;
+  top: 66%;
+  transform: translate(-50%, -50%) rotateX(-72deg);
+  color: #24ef87;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* =========================
+   COMPASS RING
+   ========================= */
+
+.vpython-attitude-viewport .vpy-compass-ring {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 560px;
+  height: 360px;
+  border-radius: 50%;
+  border: 3px solid rgba(160, 190, 230, 0.65);
+  transform: translate(-50%, -50%) rotateX(72deg);
+  z-index: 3;
+  box-shadow: 0 0 12px rgba(120, 170, 255, 0.12);
+}
+
+.vpython-attitude-viewport .vpy-compass-label {
+  position: absolute;
+  color: rgba(220, 230, 245, 0.8);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.vpython-attitude-viewport .vpy-zero {
+  left: 50%;
+  top: -18px;
+  transform: translateX(-50%) rotateX(-72deg);
+}
+
+.vpython-attitude-viewport .vpy-90 {
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%) rotateX(-72deg);
+}
+
+.vpython-attitude-viewport .vpy-180 {
+  left: 50%;
+  bottom: -18px;
+  transform: translateX(-50%) rotateX(-72deg);
+}
+
+.vpython-attitude-viewport .vpy-270 {
+  left: -18px;
+  top: 50%;
+  transform: translateY(-50%) rotateX(-72deg);
+}
+
+/* =========================
+   VERTICAL PLANES
+   ========================= */
+
+.vpython-attitude-viewport .vpy-roll-plane,
+.vpython-attitude-viewport .vpy-pitch-plane {
+  position: absolute;
+  top: 48%;
+  width: 290px;
+  height: 310px;
+  transform-style: preserve-3d;
+  z-index: 1;
+}
+
+.vpython-attitude-viewport .vpy-roll-plane {
+  left: 37%;
+  transform: translate(-50%, -50%) rotateY(66deg);
+  background: rgba(255, 50, 60, 0.05);
+  border: 1px solid rgba(255, 90, 90, 0.07);
+}
+
+.vpython-attitude-viewport .vpy-pitch-plane {
+  left: 63%;
+  transform: translate(-50%, -50%) rotateY(0deg);
+  background: rgba(40, 120, 255, 0.05);
+  border: 1px solid rgba(70, 150, 255, 0.07);
+}
+
+.vpython-attitude-viewport .vpy-roll-plane-label,
+.vpython-attitude-viewport .vpy-pitch-plane-label {
+  position: absolute;
+  top: 12px;
+  padding: 3px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.vpython-attitude-viewport .vpy-roll-plane-label {
+  left: 12px;
+  color: #ff4f4f;
+  background: rgba(18, 6, 6, 0.88);
+}
+
+.vpython-attitude-viewport .vpy-pitch-plane-label {
+  right: 12px;
+  color: #4992ff;
+  background: rgba(5, 10, 18, 0.88);
+}
+
+/* =========================
+   AXES
+   ========================= */
+
+.vpython-attitude-viewport .vpy-axis {
+  position: absolute;
+  z-index: 8;
+}
+
+.vpython-attitude-viewport .vpy-axis-line {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 4px;
+  transform: translateY(-50%);
+  transform-origin: left center;
+}
+
+.vpython-attitude-viewport .vpy-axis-x {
+  left: 50%;
+  top: 62%;
+  width: 300px;
+  height: 4px;
+  transform: rotate(18deg);
+  transform-origin: left center;
+}
+
+.vpython-attitude-viewport .vpy-axis-y {
+  left: calc(50% - 300px);
+  top: 62%;
+  width: 300px;
+  height: 4px;
+  transform: rotate(-28deg);
+  transform-origin: right center;
+}
+
+.vpython-attitude-viewport .vpy-axis-x .x-line {
+  width: 100%;
+  background: #ff1e1e;
+}
+
+.vpython-attitude-viewport .vpy-axis-y .y-line {
+  width: 100%;
+  background: #09d543;
+}
+
+.vpython-attitude-viewport .vpy-axis-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+}
+
+.vpython-attitude-viewport .x-arrow {
+  right: -2px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 18px solid #ff1e1e;
+}
+
+.vpython-attitude-viewport .y-arrow {
+  left: -2px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 18px solid #09d543;
+}
+
+.vpython-attitude-viewport .vpy-axis-x > span,
+.vpython-attitude-viewport .vpy-axis-y > span {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.vpython-attitude-viewport .vpy-axis-x > span {
+  right: -28px;
+  top: 10px;
+  color: #ff1e1e;
+}
+
+.vpython-attitude-viewport .vpy-axis-y > span {
+  left: -20px;
+  top: 10px;
+  color: #09d543;
+}
+
+.vpython-attitude-viewport .vpy-axis-z {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: 4px;
+  height: 220px;
+  transform: translateX(-50%);
+  z-index: 9;
+}
+
+.vpython-attitude-viewport .vpy-z-line {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 4px;
+  height: 100%;
+  transform: translateX(-50%);
+  background: #1d4fff;
+  box-shadow: 0 0 10px rgba(40, 90, 255, 0.35);
+}
+
+.vpython-attitude-viewport .vpy-z-arrow {
+  position: absolute;
+  left: 50%;
+  top: -14px;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 21px solid #1d4fff;
+}
+
+.vpython-attitude-viewport .vpy-axis-z > span {
+  position: absolute;
+  left: 50%;
+  top: -36px;
+  transform: translateX(-50%);
+  color: #2b63ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* =========================
+   YAW ROTOR
+   ONLY ROTATES ABOUT Z
+   ========================= */
+
+.vpython-attitude-viewport .vpy-yaw-rotor {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 0;
+  height: 0;
+  z-index: 12;
+  transform-origin: center center;
+}
+
+.vpython-attitude-viewport .vpy-heading-pointer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 205px;
+  height: 0;
+  border-top: 2px solid rgba(255, 165, 0, 0.9);
+  transform: translateY(-1px);
+  transform-origin: left center;
+}
+
+.vpython-attitude-viewport .vpy-front-vector {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 158px;
+  height: 0;
+  transform: translateY(-1px);
+  transform-origin: left center;
+}
+
+.vpython-attitude-viewport .vpy-front-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 140px;
+  height: 5px;
+  background: #f6e81c;
+  box-shadow: 0 0 10px rgba(246, 232, 28, 0.3);
+}
+
+.vpython-attitude-viewport .vpy-front-arrow {
+  position: absolute;
+  right: 0;
+  top: -7px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 24px solid #f6e81c;
+}
+
+.vpython-attitude-viewport .vpy-front-vector > span {
+  position: absolute;
+  right: -12px;
+  top: 12px;
+  color: #d8d226;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* =========================
+   ROVER BODY
+   ========================= */
+
+.vpython-attitude-viewport .vpy-body-anchor {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 0;
+  height: 0;
+  z-index: 11;
+  transform-style: preserve-3d;
+}
+
+.vpython-attitude-viewport .vpy-body-yaw {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-style: preserve-3d;
+  transform-origin: center center;
+}
+
+.vpython-attitude-viewport .vpy-body-pitch {
+  transform-style: preserve-3d;
+  transform-origin: center center;
+}
+
+.vpython-attitude-viewport .vpy-body-roll {
+  transform-style: preserve-3d;
+  transform-origin: center center;
+}
+
+.vpython-attitude-viewport .vpy-rover-body {
+  position: absolute;
+  left: -56px;
+  top: -24px;
+  width: 112px;
+  height: 48px;
+  background: linear-gradient(180deg, #1d6bd1, #154790);
+  border: 1px solid rgba(120, 190, 255, 0.35);
+  border-radius: 4px;
+  box-shadow: 0 0 15px rgba(20, 100, 255, 0.15);
+}
+
+.vpython-attitude-viewport .vpy-rover-top {
+  position: absolute;
+  left: 22px;
+  top: 6px;
+  width: 68px;
+  height: 24px;
+  background: linear-gradient(180deg, #35485f, #283646);
+  border-radius: 2px;
+}
+
+.vpython-attitude-viewport .vpy-rover-side {
+  position: absolute;
+  top: 12px;
+  width: 8px;
+  height: 32px;
+  background: #2f8cff;
+}
+
+.vpython-attitude-viewport .vpy-rover-side.left {
+  left: -6px;
+}
+
+.vpython-attitude-viewport .vpy-rover-side.right {
+  right: -6px;
+}
+
+.vpython-attitude-viewport .vpy-rover-front-face {
+  position: absolute;
+  right: -2px;
+  top: 12px;
+  width: 5px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* =========================
+   SMALL HUD
+   ========================= */
+
+.vpython-attitude-viewport .vpy-live-values {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  display: flex;
+  gap: 10px;
+  z-index: 30;
+}
+
+.vpython-attitude-viewport .vpy-live-values > div {
+  min-width: 72px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(4, 10, 16, 0.82);
+  border: 1px solid rgba(70, 100, 130, 0.18);
+}
+
+.vpython-attitude-viewport .vpy-live-values span {
+  display: block;
+  font-size: 9px;
+  color: rgba(200, 210, 225, 0.72);
+  letter-spacing: 0.08em;
+}
+
+.vpython-attitude-viewport .vpy-live-values strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.vpython-attitude-viewport .vpy-sensor-indicator {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 30;
+  font-size: 9px;
+}
+/* ============================================================
+   M.I.T.R.A. ATTITUDE — FINAL AXIS / YAW GEOMETRY FIX
+   ============================================================ */
+
+/*
+   Coordinate convention:
+
+        BLUE Z / UP
+             |
+             |
+             O──────── RED X
+            /
+           /
+       GREEN Y
+
+   YAW   -> rotation about BLUE Z
+   ROLL  -> rotation about RED X
+   PITCH -> rotation about GREEN Y
+*/
+
+
+/* ============================================================
+   COMMON CENTER
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-world {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 50% !important;
+
+  width: 760px !important;
+  height: 500px !important;
+
+  transform:
+    translate(-50%, -50%) !important;
+
+  transform-style:
+    preserve-3d !important;
+
+  overflow:
+    visible !important;
+}
+
+
+/* ============================================================
+   YAW PLANE
+   STATIC HORIZONTAL GREEN DISK
+   ============================================================ */
+
+.vpython-attitude-viewport .vpy-yaw-plane {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 62% !important;
+
+  width: 460px !important;
+  height: 300px !important;
+
+  transform:
+    translate(-50%, -50%)
+    rotateX(72deg) !important;
+
+  transform-origin:
+    50% 50% !important;
+
+  border-radius:
+    50% !important;
+
+  z-index:
+    2 !important;
+
+  pointer-events:
+    none !important;
+}
+
+
+.vpython-attitude-viewport .vpy-yaw-plane-fill {
+  position: absolute !important;
+
+  inset: 0 !important;
+
+  border-radius:
+    50% !important;
+
+  background:
+    rgba(0, 190, 95, 0.12) !important;
+
+  border:
+    1px solid
+    rgba(50, 245, 145, 0.16) !important;
+
+  box-shadow:
+    inset 0 0 35px
+    rgba(0, 210, 110, 0.08) !important;
+}
+
+
+/* Small text, NO translucent rectangle */
+
+.vpython-attitude-viewport
+.vpy-yaw-plane-label {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 74% !important;
+
+  transform:
+    translate(-50%, -50%)
+    rotateX(-72deg) !important;
+
+  padding:
+    0 !important;
+
+  margin:
+    0 !important;
+
+  border:
+    none !important;
+
+  background:
+    transparent !important;
+
+  box-shadow:
+    none !important;
+
+  color:
+    #31ea8b !important;
+
+  font-size:
+    9px !important;
+
+  font-weight:
+    700 !important;
+
+  letter-spacing:
+    0.02em !important;
+
+  white-space:
+    nowrap !important;
+}
+
+
+/* ============================================================
+   YAW ROTOR
+   SAME EXACT PLANE AS GREEN DISK
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-yaw-rotor {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 62% !important;
+
+  /*
+   Same dimensions as yaw disk.
+   Therefore center of rotation is exactly
+   the center of the green plane.
+  */
+
+  width: 460px !important;
+  height: 300px !important;
+
+  transform-origin:
+    50% 50% !important;
+
+  transform-style:
+    preserve-3d !important;
+
+  z-index:
+    15 !important;
+
+  pointer-events:
+    none !important;
+}
+
+
+/* ============================================================
+   YELLOW HEADING / ROVER FRONT VECTOR
+
+   Starts exactly at yaw center.
+   Extends along local +X.
+
+   Parent rotates about Z, therefore the arrow travels
+   around the green horizontal disk.
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-front-vector {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 50% !important;
+
+  width: 175px !important;
+  height: 0 !important;
+
+  transform:
+    translateY(-50%) !important;
+
+  transform-origin:
+    left center !important;
+}
+
+
+.vpython-attitude-viewport
+.vpy-front-line {
+  position: absolute !important;
+
+  left: 0 !important;
+  top: -2px !important;
+
+  width: 150px !important;
+  height: 4px !important;
+
+  border-radius:
+    3px !important;
+
+  background:
+    #ffe51a !important;
+
+  box-shadow:
+    0 0 9px
+    rgba(255, 229, 26, 0.45) !important;
+}
+
+
+.vpython-attitude-viewport
+.vpy-front-arrow {
+  position: absolute !important;
+
+  left: 148px !important;
+  top: -10px !important;
+
+  width: 0 !important;
+  height: 0 !important;
+
+  border-top:
+    10px solid transparent !important;
+
+  border-bottom:
+    10px solid transparent !important;
+
+  border-left:
+    23px solid #ffe51a !important;
+}
+
+
+/* Remove any second/orange heading line */
+
+.vpython-attitude-viewport
+.vpy-heading-pointer {
+  display:
+    none !important;
+}
+
+
+/* ============================================================
+   BLUE Z / UP AXIS
+   TRUE YAW ROTATION AXIS
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-axis-z {
+  position: absolute !important;
+
+  left: 50% !important;
+  top: 15% !important;
+
+  width: 4px !important;
+  height: 235px !important;
+
+  transform:
+    translateX(-50%) !important;
+
+  z-index:
+    20 !important;
+}
+
+
+.vpython-attitude-viewport
+.vpy-z-line {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  bottom:
+    0 !important;
+
+  width:
+    4px !important;
+
+  height:
+    100% !important;
+
+  transform:
+    translateX(-50%) !important;
+
+  background:
+    #2054ff !important;
+
+  box-shadow:
+    0 0 8px
+    rgba(32, 84, 255, 0.4) !important;
+}
+
+
+.vpython-attitude-viewport
+.vpy-z-arrow {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    -14px !important;
+
+  transform:
+    translateX(-50%) !important;
+
+  width:
+    0 !important;
+
+  height:
+    0 !important;
+
+  border-left:
+    8px solid transparent !important;
+
+  border-right:
+    8px solid transparent !important;
+
+  border-bottom:
+    18px solid #2054ff !important;
+}
+
+
+.vpython-attitude-viewport
+.vpy-axis-z > span {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    -37px !important;
+
+  transform:
+    translateX(-50%) !important;
+
+  color:
+    #376cff !important;
+
+  font-size:
+    10px !important;
+
+  font-weight:
+    750 !important;
+
+  white-space:
+    nowrap !important;
+}
+
+
+/* ============================================================
+   RED X AXIS
+   ROLL AXIS
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-axis-x {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    62% !important;
+
+  width:
+    300px !important;
+
+  height:
+    4px !important;
+
+  transform:
+    rotate(18deg) !important;
+
+  transform-origin:
+    left center !important;
+
+  z-index:
+    8 !important;
+}
+
+
+/* ============================================================
+   GREEN Y AXIS
+   PITCH AXIS
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-axis-y {
+  position:
+    absolute !important;
+
+  left:
+    calc(50% - 300px) !important;
+
+  top:
+    62% !important;
+
+  width:
+    300px !important;
+
+  height:
+    4px !important;
+
+  transform:
+    rotate(-28deg) !important;
+
+  transform-origin:
+    right center !important;
+
+  z-index:
+    8 !important;
+}
+
+
+/* Smaller X/Y text */
+
+.vpython-attitude-viewport
+.vpy-axis-x > span,
+.vpython-attitude-viewport
+.vpy-axis-y > span {
+  font-size:
+    10px !important;
+}
+
+
+/* ============================================================
+   ROLL PLANE
+   ROTATION ABOUT RED X AXIS
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-roll-plane {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    48% !important;
+
+  width:
+    340px !important;
+
+  height:
+    315px !important;
+
+  transform:
+    translate(-50%, -50%)
+    rotateY(72deg) !important;
+
+  transform-origin:
+    center center !important;
+
+  background:
+    rgba(230, 45, 50, 0.035) !important;
+
+  border:
+    1px solid
+    rgba(255, 70, 75, 0.055) !important;
+
+  z-index:
+    1 !important;
+}
+
+
+/* ============================================================
+   PITCH PLANE
+   ROTATION ABOUT GREEN Y AXIS
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-pitch-plane {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    48% !important;
+
+  width:
+    400px !important;
+
+  height:
+    315px !important;
+
+  transform:
+    translate(-50%, -50%) !important;
+
+  transform-origin:
+    center center !important;
+
+  background:
+    rgba(35, 105, 235, 0.035) !important;
+
+  border:
+    1px solid
+    rgba(65, 135, 255, 0.055) !important;
+
+  z-index:
+    1 !important;
+}
+
+
+/* ============================================================
+   SMALLER PLANE LABELS
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-roll-plane-label,
+.vpython-attitude-viewport
+.vpy-pitch-plane-label {
+  font-size:
+    9px !important;
+
+  font-weight:
+    700 !important;
+
+  padding:
+    2px 5px !important;
+
+  letter-spacing:
+    0.02em !important;
+}
+
+
+/* ============================================================
+   ROVER BODY CENTER
+   ============================================================ */
+
+.vpython-attitude-viewport
+.vpy-body-anchor {
+  position:
+    absolute !important;
+
+  left:
+    50% !important;
+
+  top:
+    62% !important;
+
+  z-index:
+    14 !important;
+
+  transform-style:
+    preserve-3d !important;
+}
