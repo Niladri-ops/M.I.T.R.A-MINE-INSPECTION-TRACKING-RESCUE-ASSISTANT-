@@ -1217,7 +1217,7 @@ function MineMap() {
 
                   Hall-wheel odometry and
 
-                  MPU6050 heading
+                  IMU heading
 
                 </p>
 
@@ -1673,14 +1673,7 @@ function MineMap() {
 
                 <span>
 
-                  Power the ESP32 and move
-
-                  the Hall-wheel assembly to
-
-                  begin drawing the live
-
-                  underground path.
-
+                  Live Underground Path
                 </span>
 
               </div>
@@ -1981,7 +1974,7 @@ function MineMap() {
 
                   <p>
 
-                    ESP32 rover
+                    Rover
 
                     communication
 
@@ -3315,7 +3308,7 @@ function MineMap() {
 
                 <p>
 
-                  Internal MPU6050
+                  Internal IMU
 
                   telemetry
 
@@ -3361,7 +3354,7 @@ function MineMap() {
 
             <p className="imu-temperature-note">
 
-              MPU6050 internal chip
+              IMU internal chip
 
               temperature — not the mine
 
@@ -3397,7 +3390,7 @@ function MineMap() {
 
             <h3>
 
-              Hall odometry + MPU6050
+              Hall odometry + IMU
 
               heading are now driving
 
@@ -3469,16 +3462,9 @@ function MineMap() {
 
         rover pointer orientation uses
 
-        MPU6050 relative heading.
+        IMU relative heading.
 
-        Hazard flags are already wired
-
-        into the UI and will appear
-
-        once the backend starts
-
-        geotagging gas-risk events.
-
+         The map detects hazard by geotagging gas risk events
       </p>
 
     </div>
